@@ -1,0 +1,19 @@
+{
+  "name": "idea-school",
+  "version": "1.0.0",
+  "description": "Website to give an overview of the class assignments for the current week",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "Juan José Jara Laconich",
+  "license": "ISC",
+  "engines": {
+    "node": "12.x"
+  }
+}
