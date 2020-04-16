@@ -4,7 +4,9 @@
   "description": "Website to give an overview of the class assignments for the current week",
   "main": "app.js",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "pg": "^8.0.0"
   },
   "devDependencies": {},
   "scripts": {
