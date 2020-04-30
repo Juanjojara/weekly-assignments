@@ -1,0 +1,16 @@
+extends layout
+block header
+	h1= title
+
+block content
+	h2 Add an institution
+	form(method='POST' action='')
+		div.form-group
+			label(for='name') Institution Name:
+			input#name.form-control(type='text', placeholder='Name of the Institution' name='name' required='true' )
+		button.btn.btn-primary(type='submit') Add Institution
+
+		if errors
+			ul
+				for error in errors
+					li!= error.msg

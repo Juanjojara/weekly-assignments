@@ -1,0 +1,66 @@
+extends layout
+block sidebar
+	h4 Sections
+	h4 Num. sections: #{classrooms.length}
+	ul(class='sidebar-nav')
+		each classroom in classrooms
+			li
+				a(href='') #{classroom.section}
+
+block content
+	div(class='row')
+		div(class='col-sm-6')
+			h1= title
+		div(class='col-sm-4')
+			button(type='button' class='btn btn-primary' data-toggle='modal' data-target='#myModal' style='margin-top: 10px') Add Assignment
+	//h1= title
+	//div(class='container-fluid')
+	div(class='row' style='font-weight: bold; color:white;')
+		div(class='col-sm-2 bg-info border text-center')
+			p Monday
+		div(class='col-sm-2 bg-info border text-center')
+			p Tuesday
+		div(class='col-sm-2 bg-info border text-center')
+			p Wednesday
+		div(class='col-sm-2 bg-info border text-center')
+			p Thursday
+		div(class='col-sm-2 bg-info border text-center')
+			p Friday
+	div(class='row')
+		div(class='col-sm-2 text-center')
+			div(class='accordion' id='accordionMonday')
+				each assignment in assignmentsMonday
+					div(class='card')
+						div(class='card-header' id=assignment.id)
+							h2(class='mb-0')
+							button(class='btn btn-link' type='button' data-toggle='collapse' data-target='#collapse'+assignment.id aria-expanded='true' aria-controls='collapse#'+assignment.id)
+								p #{assignment.subject}
+						div(class='collapse show' id='collapse'+assignment.id aria-labelledby=assignment.id data-parent='#accordionMonday')
+							div(class='card-body')
+								p #{assignment.assignment}
+
+	div(class='modal' id='myModal')
+		div(class='modal-dialog')
+			div(class='modal-content')
+				form(method='POST' action='/assignment')
+					div(class='modal-header')
+						h4(class='modal-title') Give a new assignment
+						button(type='button' class='close' data-dismiss='modal') &times;
+					
+					div(class='modal-body')
+						div.form-group
+							label(for='section') Section:
+							input#section.form-control(type='text', placeholder='Section or Classroom' name='section' required='true' )
+							label(for='subject') Subject:
+							input#subject.form-control(type='text', placeholder='Subject or Course' name='subject' required='true' )
+							label(for='assignment') Subject:
+							input#assignment.form-control(type='text', placeholder='Title or description of the assignment' name='assignment' required='true' )
+							label(for='duration') Duration:
+							input#duration.form-control(type='text', placeholder='Estimated duration' name='duration' required='true' )
+							label(for='date_of_assignment') Assignment Date:
+							input#date_of_assignment.form-control(type='date' name='date_of_assignment' required='true')
+					
+					div(class='modal-footer')
+						button(type='submit' class='btn btn-primary') Save
+						button(type='button' class='btn btn-danger' data-dismiss='modal') Cancel
+

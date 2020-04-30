@@ -1,0 +1,22 @@
+extends layout
+block header
+	h1= title
+
+block content
+	h2 Select an institution to view the assignments
+
+	form(method='GET' action='/home')
+		div.form-group
+			label(for='institution') Institution:
+			select#institution.form-control(type='select', placeholder='Select institution' name='institution')
+				- institutions.sort(function(a, b) {let textA = a.name.toUpperCase(); let textB = b.name.toUpperCase(); return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;});
+				for institution in institutions
+					option(value=institution.id) #{institution.name}
+		button.btn.btn-primary(type='submit') View Assignments
+
+	hr
+	h2 Or select among your most used institutions
+
+	hr
+	h2 Or 
+	a(class='btn btn-primary' href='/institution') Add an institution
