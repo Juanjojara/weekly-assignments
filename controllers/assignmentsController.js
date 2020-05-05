@@ -10,7 +10,8 @@ exports.index = function(req, res) {
         },
 
 		userSections: function(callback) {
-        	var queryAssignments = "SELECT DISTINCT(classroom_group) as section FROM assignments WHERE author = " + req.session.userId;
+        	var queryAssignments = "SELECT DISTINCT(classroom_group) as section FROM assignments " +
+        	"WHERE author = " + req.session.userId + " AND institution = " + req.session.institutionID;
         	db.query(queryAssignments, callback);
         },
 
@@ -20,8 +21,30 @@ exports.index = function(req, res) {
         },
 
         assignments: function(callback) {
-        	var queryAssignments = "SELECT * FROM assignments WHERE institution = " + req.session.institutionID;
+        	var curDate = new Date();
+        	//console.log("Tod: " + curDate);
+        	curDate.setDate(curDate.getDate() - curDate.getDay() + 1 + 7*(parseInt(req.session.week)));
+        	var assignmentWeek = getWeekDays(curDate);
+        	var queryAssignments = "SELECT * FROM assignments WHERE institution = " + req.session.institutionID + 
+        							" AND assignment_date >= '" + assignmentWeek[0].toISOString().slice(0, 10) + "'" + 
+        							" AND assignment_date <= '" + assignmentWeek[4].toISOString().slice(0, 10) + "'";
+        	console.log(queryAssignments);
         	db.query(queryAssignments, callback);
+        },
+
+        weekDays: function(callback) {
+        	var curDate = new Date();
+        	console.log("Week: " + req.session.week);
+        	curDate.setDate(curDate.getDate() - curDate.getDay() + 1 + 7*(parseInt(req.session.week)));
+        	var assignmentWeek = getWeekDays(curDate);
+        	day = {
+        		monday: assignmentWeek[0].toISOString().slice(0, 10),
+        		tuesday: assignmentWeek[1].toISOString().slice(0, 10),
+        		wednesday: assignmentWeek[2].toISOString().slice(0, 10),
+        		thursday: assignmentWeek[3].toISOString().slice(0, 10),
+        		friday: assignmentWeek[4].toISOString().slice(0, 10)
+        	};
+			callback(null, day);
         }
 
     }, function(err, results) {
@@ -36,7 +59,7 @@ exports.index = function(req, res) {
         */
         // Successful, so render
         //res.render('genre_detail', { title: 'Genre Detail', genre: results.genre, genre_books: results.genre_books } );
-	    res.render('index', { title: 'Assignments for ' + results.institutions.rows[0].name, assignmentsMonday: results.assignments.rows, userAssignments: results.userAssignments.rows, classrooms: results.userSections.rows });
+	    res.render('index', { institution: results.institutions.rows[0], assignmentsMonday: results.assignments.rows, userAssignments: results.userAssignments.rows, classrooms: results.userSections.rows, weekDays: results.weekDays });
     });
 };
 
@@ -86,7 +109,7 @@ exports.createAssignment = [
 		        */
 		        // Successful, so render
 		        //res.render('genre_detail', { title: 'Genre Detail', genre: results.genre, genre_books: results.genre_books } );
-			    res.render('index', { title: 'Assignments for ' + results.institutions.rows[0].name, assignments: results.assignments.rows, userAssignments: results.userAssignments.rows, classrooms: results.userSections.rows, errors: errors.array() });
+			    res.render('index', { institution: results.institutions.rows[0], assignments: results.assignments.rows, userAssignments: results.userAssignments.rows, classrooms: results.userSections.rows, errors: errors.array() });
 				return;
 		    });
         } else {
@@ -103,3 +126,20 @@ exports.createAssignment = [
         }
     }
 ];
+
+function getWeekDays(monday){
+	var weekDays = [];
+	for (var i = 0; i < 7; i++) {
+		weekDays.push(addDays(monday,i));
+	}
+	for (var i = 0; i < 5; i++) {
+		console.log("Day: " + weekDays[i].toISOString().slice(0, 10));
+	}	
+	return weekDays;
+}
+
+function addDays(date, days) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}

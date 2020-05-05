@@ -10,22 +10,35 @@ block sidebar
 block content
 	div(class='row')
 		div(class='col-sm-6')
-			h1= title
+			h1= 'Assignments for ' + institution.name
 		div(class='col-sm-4')
 			button(type='button' class='btn btn-primary' data-toggle='modal' data-target='#myModal' style='margin-top: 10px') Add Assignment
 	//h1= title
 	//div(class='container-fluid')
 	div(class='row' style='font-weight: bold; color:white;')
+		div(class='col-sm-2 border text-center')
+			a(href='/home/'+ institution.id +'?week=-1') See previous week
+		div(class='col-sm-2')
+		div(class='col-sm-2')
+		div(class='col-sm-2')
+		div(class='col-sm-2 border text-center')
+			a(href='/home/'+ institution.id +'?week=1') See next week
+	div(class='row' style='font-weight: bold; color:white;')
 		div(class='col-sm-2 bg-info border text-center')
 			p Monday
+			p #{weekDays.monday}
 		div(class='col-sm-2 bg-info border text-center')
 			p Tuesday
+			p #{weekDays.tuesday}
 		div(class='col-sm-2 bg-info border text-center')
 			p Wednesday
+			p #{weekDays.wednesday}
 		div(class='col-sm-2 bg-info border text-center')
 			p Thursday
+			p #{weekDays.thursday}
 		div(class='col-sm-2 bg-info border text-center')
 			p Friday
+			p #{weekDays.friday}
 	div(class='row')
 		div(class='col-sm-2 text-center')
 			div(class='accordion' id='accordionMonday')
@@ -34,7 +47,7 @@ block content
 						div(class='card-header' id=assignment.id)
 							h2(class='mb-0')
 							button(class='btn btn-link' type='button' data-toggle='collapse' data-target='#collapse'+assignment.id aria-expanded='true' aria-controls='collapse#'+assignment.id)
-								p #{assignment.subject}
+								p #{assignment.subject} - #{assignment.duration} minutes
 						div(class='collapse show' id='collapse'+assignment.id aria-labelledby=assignment.id data-parent='#accordionMonday')
 							div(class='card-body')
 								p #{assignment.assignment}
@@ -55,8 +68,9 @@ block content
 							input#subject.form-control(type='text', placeholder='Subject or Course' name='subject' required='true' )
 							label(for='assignment') Subject:
 							input#assignment.form-control(type='text', placeholder='Title or description of the assignment' name='assignment' required='true' )
-							label(for='duration') Duration:
-							input#duration.form-control(type='text', placeholder='Estimated duration' name='duration' required='true' )
+							label(for='duration') Duration in minutes:
+							//input#duration.form-control(type='text', placeholder='Estimated duration' name='duration' required='true' )
+							input#duration.form-control(type='number', name='duration' min=5 max240 step=5 required='true' )
 							label(for='date_of_assignment') Assignment Date:
 							input#date_of_assignment.form-control(type='date' name='date_of_assignment' required='true')
 					
