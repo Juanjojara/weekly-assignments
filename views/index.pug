@@ -1,11 +1,30 @@
 extends layout
 block sidebar
+	script.
+		var showSection = function (section, listItem) {
+			document.querySelector('.active').classList.toggle("active");
+			listItem.classList.toggle("active");
+
+			var y = document.querySelectorAll(".visible");
+			for (var i = 0; i < y.length; i++) {
+				y[i].classList.toggle("not-visible");
+				y[i].classList.toggle("visible");
+			}
+			var x = document.querySelectorAll(section);
+			for (var i = 0; i < x.length; i++) {
+				x[i].classList.toggle("not-visible");
+				x[i].classList.toggle("visible");
+			}
+			//element.classList.toggle("mystyle");
+		}
 	h4 Sections
 	h4 Num. sections: #{classrooms.length}
-	ul(class='sidebar-nav')
+	ul(class='sidebar-nav list-group')
 		each classroom in classrooms
-			li
-				a(href='') #{classroom.section}
+			if (classroom.section == classrooms[0].section)
+				li(class='list-group-item active' onclick='showSection(".section' + classroom.section + '", this);') #{classroom.section}
+			else
+				li(class='list-group-item' onclick='showSection(".section' + classroom.section + '", this);') #{classroom.section}
 
 block content
 	div(class='row')
@@ -43,14 +62,24 @@ block content
 		div(class='col-sm-2 text-center')
 			div(class='accordion' id='accordionMonday')
 				each assignment in assignmentsMonday
-					div(class='card')
-						div(class='card-header' id=assignment.id)
-							h2(class='mb-0')
-							button(class='btn btn-link' type='button' data-toggle='collapse' data-target='#collapse'+assignment.id aria-expanded='true' aria-controls='collapse#'+assignment.id)
-								p #{assignment.subject} - #{assignment.duration} minutes
-						div(class='collapse show' id='collapse'+assignment.id aria-labelledby=assignment.id data-parent='#accordionMonday')
-							div(class='card-body')
-								p #{assignment.assignment}
+					if (assignment.classroom_group == classrooms[0].section)
+						div(class='card visible section' + assignment.classroom_group)
+							div(class='card-header' id=assignment.id)
+								h2(class='mb-0')
+								button(class='btn btn-link' type='button' data-toggle='collapse' data-target='#collapse'+assignment.id aria-expanded='true' aria-controls='collapse#'+assignment.id)
+									p #{assignment.subject} - #{assignment.duration} minutes
+							div(class='collapse show' id='collapse'+assignment.id aria-labelledby=assignment.id data-parent='#accordionMonday')
+								div(class='card-body')
+									p #{assignment.assignment}
+					else
+						div(class='card not-visible section' + assignment.classroom_group)
+							div(class='card-header' id=assignment.id)
+								h2(class='mb-0')
+								button(class='btn btn-link' type='button' data-toggle='collapse' data-target='#collapse'+assignment.id aria-expanded='true' aria-controls='collapse#'+assignment.id)
+									p #{assignment.subject} - #{assignment.duration} minutes
+							div(class='collapse show' id='collapse'+assignment.id aria-labelledby=assignment.id data-parent='#accordionMonday')
+								div(class='card-body')
+									p #{assignment.assignment}
 
 	div(class='modal' id='myModal')
 		div(class='modal-dialog')
