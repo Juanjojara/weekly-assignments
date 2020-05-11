@@ -50,6 +50,9 @@ exports.index = function(req, res) {
     }, function(err, results) {
     	//console.log("Inst: " + req.session.institutionID);
     	console.log("User Sections: " + results.userSections.rows.length);
+    	for (var i=0; i<results.assignments.rows.length; i++){
+    		results.assignments.rows[i].assignment_date = results.assignments.rows[i].assignment_date.getFullYear() + "-" + ("0" + (results.assignments.rows[i].assignment_date.getMonth() + 1)).slice(-2) + "-" + ("0" + results.assignments.rows[i].assignment_date.getDate()).slice(-2);
+    	}
     	//console.log("User Sections1: " + JSON.stringify(results.userSections));
         if (err) { return next(err); }
         /*if (results.userSections==undefined) { // No results.
@@ -59,7 +62,7 @@ exports.index = function(req, res) {
         */
         // Successful, so render
         //res.render('genre_detail', { title: 'Genre Detail', genre: results.genre, genre_books: results.genre_books } );
-	    res.render('index', { institution: results.institutions.rows[0], assignmentsMonday: results.assignments.rows, userAssignments: results.userAssignments.rows, classrooms: results.userSections.rows, weekDays: results.weekDays });
+	    res.render('index', { institution: results.institutions.rows[0], assignments: results.assignments.rows, userAssignments: results.userAssignments.rows, classrooms: results.userSections.rows, weekDays: results.weekDays });
     });
 };
 
@@ -83,7 +86,8 @@ exports.createAssignment = [
 		        },
 
 				userSections: function(callback) {
-		        	var queryAssignments = "SELECT DISTINCT(classroom_group) as section FROM assignments WHERE author = " + req.session.userId;
+		        	var queryAssignments = "SELECT DISTINCT(classroom_group) as section FROM assignments " +
+		        	"WHERE author = " + req.session.userId + " AND institution = " + req.session.institutionID;
 		        	db.query(queryAssignments, callback);
 		        },
 
@@ -93,12 +97,35 @@ exports.createAssignment = [
 		        },
 
 		        assignments: function(callback) {
-		        	var queryAssignments = "SELECT * FROM assignments WHERE institution = " + req.session.institutionID;
+		        	var curDate = new Date();
+		        	//console.log("Tod: " + curDate);
+		        	curDate.setDate(curDate.getDate() - curDate.getDay() + 1 + 7*(parseInt(req.session.week)));
+		        	var assignmentWeek = getWeekDays(curDate);
+		        	var queryAssignments = "SELECT * FROM assignments WHERE institution = " + req.session.institutionID + 
+		        							" AND assignment_date >= '" + assignmentWeek[0].toISOString().slice(0, 10) + "'" + 
+		        							" AND assignment_date <= '" + assignmentWeek[4].toISOString().slice(0, 10) + "'";
+		        	console.log(queryAssignments);
 		        	db.query(queryAssignments, callback);
+		        },
+
+		        weekDays: function(callback) {
+		        	var curDate = new Date();
+		        	console.log("Week: " + req.session.week);
+		        	curDate.setDate(curDate.getDate() - curDate.getDay() + 1 + 7*(parseInt(req.session.week)));
+		        	var assignmentWeek = getWeekDays(curDate);
+		        	day = {
+		        		monday: assignmentWeek[0].toISOString().slice(0, 10),
+		        		tuesday: assignmentWeek[1].toISOString().slice(0, 10),
+		        		wednesday: assignmentWeek[2].toISOString().slice(0, 10),
+		        		thursday: assignmentWeek[3].toISOString().slice(0, 10),
+		        		friday: assignmentWeek[4].toISOString().slice(0, 10)
+		        	};
+					callback(null, day);
 		        }
 
 		    }, function(err, results) {
 		    	console.log("Inst: " + req.session.institutionID);
+		    	
 		    	//console.log("User Sections: " + results.userSections.length);
 		    	//console.log("User Sections1: " + JSON.stringify(results.userSections));
 		        if (err) { return next(err); }
@@ -108,8 +135,8 @@ exports.createAssignment = [
 		        }
 		        */
 		        // Successful, so render
-		        //res.render('genre_detail', { title: 'Genre Detail', genre: results.genre, genre_books: results.genre_books } );
-			    res.render('index', { institution: results.institutions.rows[0], assignments: results.assignments.rows, userAssignments: results.userAssignments.rows, classrooms: results.userSections.rows, errors: errors.array() });
+			    //res.render('index', { institution: results.institutions.rows[0], assignments: results.assignments.rows, userAssignments: results.userAssignments.rows, classrooms: results.userSections.rows, errors: errors.array() });
+			    res.render('index', { institution: results.institutions.rows[0], assignmentsMonday: results.assignments.rows, userAssignments: results.userAssignments.rows, classrooms: results.userSections.rows, weekDays: results.weekDays });
 				return;
 		    });
         } else {
@@ -126,6 +153,45 @@ exports.createAssignment = [
         }
     }
 ];
+
+
+exports.getAssignments = function(req, res) {
+    async.parallel({
+		assignment_list: function(callback) {
+        	var queryAssignments = "SELECT A.id, I.name as institution_name, A.classroom_group, A.subject, A.assignment, A.duration, A.assignment_date FROM assignments A INNER JOIN institutions I ON A.institution = I.id WHERE author = " + req.session.userId + " ORDER BY assignment_date DESC";
+        	db.query(queryAssignments, callback);
+        }
+
+    }, function(err, results) {
+        if (err) { return next(err); }
+        for (var i=0; i<results.assignment_list.rows.length; i++){
+    		results.assignment_list.rows[i].assignment_date = results.assignment_list.rows[i].assignment_date.getFullYear() + "-" + ("0" + (results.assignment_list.rows[i].assignment_date.getMonth() + 1)).slice(-2) + "-" + ("0" + results.assignment_list.rows[i].assignment_date.getDate()).slice(-2);
+    	}
+
+	    res.render('assignments', { assignment_list: results.assignment_list.rows, current_institution: req.session.institutionID });
+    });
+};
+
+exports.deleteAssignment = function(req, res) {
+    async.parallel({
+		assignment_list: function(callback) {
+        	var queryAssignments = "SELECT * FROM assignments WHERE author = " + req.session.userId + " AND id = " + req.query.id;
+        	db.query(queryAssignments, callback);
+        }
+
+    }, function(err, results) {
+        if (err) { return next(err); }
+        if (results.assignment_list.rows.length>0){
+        	var deleteAssignment = "DELETE FROM assignments WHERE author = " + req.session.userId + " AND id = " + req.query.id;
+        	db.query(deleteAssignment, (err, delResult) => {
+				if (err) throw err;
+        	});
+    	}
+		res.redirect('/assignments');
+
+//	    res.render('assignments', { assignment_list: results.assignment_list.rows });
+    });
+};
 
 function getWeekDays(monday){
 	var weekDays = [];

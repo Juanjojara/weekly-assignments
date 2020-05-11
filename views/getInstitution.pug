@@ -16,6 +16,11 @@ block content
 
 	hr
 	h2 Or select among your most used institutions
+		ul(class='sidebar-nav list-group')
+			for institution in userInstitutions
+				li
+					a(href='/home?institution=' + institution.id) #{institution.name}
+
 
 	hr
 	h2 Or 

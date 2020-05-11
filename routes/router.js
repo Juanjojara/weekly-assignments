@@ -50,6 +50,9 @@ router.get('/getInstitution', institutions_controller.getInstitutions);
 router.get('/institution', institutions_controller.formInstitution);
 router.post('/institution', institutions_controller.createInstitution);
 router.post('/assignment', assignments_controller.createAssignment);
+router.get('/assignments', assignments_controller.getAssignments);
+router.get('/deleteAssignment', assignments_controller.deleteAssignment);
+
 
 
 module.exports = router;

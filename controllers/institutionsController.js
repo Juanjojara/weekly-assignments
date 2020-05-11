@@ -7,7 +7,7 @@ exports.getInstitutions = function(req, res) {
     //res.send('NOT IMPLEMENTED: Site Home Page');
     async.parallel({
 		userInstitutions: function(callback) {
-        	var queryUserInstitutions = "SELECT DISTINCT(I.name) as userInstitutions FROM assignments A INNER JOIN institutions I ON A.institution = I.id WHERE A.author = " + req.session.userId;
+        	var queryUserInstitutions = "SELECT DISTINCT(I.name) as name, I.id FROM assignments A INNER JOIN institutions I ON A.institution = I.id WHERE A.author = " + req.session.userId;
         	db.query(queryUserInstitutions, callback);
         },
 

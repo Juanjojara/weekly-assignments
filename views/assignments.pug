@@ -1,0 +1,26 @@
+extends layout
+
+block content
+	div(class='row')
+		div(class='col-sm-6')
+			h1 My Assignments
+		div(class='col-sm-6')
+			a(class='btn btn-primary' href='/home/'+current_institution style='margin-top: 10px') View Weekly Assignments
+	each assignment in assignment_list
+		div(class='row')
+			div(class='col-sm-2 border text-center')
+				p #{assignment.institution_name}
+			div(class='col-sm-1 border text-center')
+				p #{assignment.classroom_group}
+			div(class='col-sm-2 border text-center')
+				p #{assignment.subject}
+			div(class='col-sm-2 border text-center')
+				p #{assignment.duration} minutes
+			div(class='col-sm-2 border text-center')
+				p #{assignment.assignment_date} 
+			div(class='col-sm-1 border text-center')
+				a(class='btn btn-danger' onclick='return confirm("Do you want to delete the assignment?")' href='/deleteAssignment?id='+assignment.id) Delete
+		div(class='row')
+			div(class='col-sm-10 border')
+				p #{assignment.assignment}
+		hr
