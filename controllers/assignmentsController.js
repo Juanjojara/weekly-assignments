@@ -49,12 +49,13 @@ exports.index = function(req, res) {
 
     }, function(err, results) {
     	//console.log("Inst: " + req.session.institutionID);
-    	console.log("User Sections: " + results.userSections.rows.length);
+    	//console.log("User Sections: " + results.userSections.rows.length);
+    	//console.log("User Sections1: " + JSON.stringify(results.userSections));
+        if (err) { return next(err); }
+
     	for (var i=0; i<results.assignments.rows.length; i++){
     		results.assignments.rows[i].assignment_date = results.assignments.rows[i].assignment_date.getFullYear() + "-" + ("0" + (results.assignments.rows[i].assignment_date.getMonth() + 1)).slice(-2) + "-" + ("0" + results.assignments.rows[i].assignment_date.getDate()).slice(-2);
     	}
-    	//console.log("User Sections1: " + JSON.stringify(results.userSections));
-        if (err) { return next(err); }
         /*if (results.userSections==undefined) { // No results.
         	console.log("AAA");
 			results.userSections = [];
